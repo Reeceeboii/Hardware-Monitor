@@ -9,6 +9,9 @@ add_link_options(-rdynamic)
 link_directories(${GTK3_LIBRARY_DIRS})
 add_definitions(${GTK3_CFLAGS_OTHER})
 
-add_executable(Linux_System_Monitor src/main.c)
+add_executable(Linux_System_Monitor
+        src/main.c
+        src/procParser.c
+        src/procParser.h src/cpuinfo.h src/gui.h)
 
 target_link_libraries(Linux_System_Monitor ${GTK3_LIBRARIES})
