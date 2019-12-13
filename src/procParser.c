@@ -57,8 +57,10 @@ char* get_cpu_model_name(){
 }
 
 struct CPU_parsed parse_cpu() {
-    gboolean model = FALSE;
-    struct CPU_parsed result = { .model_name = "", .cache_size = "", .core_count = "", .thread_count = "" };
+    char model_name[DATABUF];
+    char cache_size[DATABUF];
+    char core_count[DATABUF];
+    char thread_count[DATABUF];
     FILE* proc_cpuinfo_p;
     char* line = NULL;
     char delim[] = ":";
@@ -84,15 +86,20 @@ struct CPU_parsed parse_cpu() {
             ++ind;
             delim_ptr = strtok(NULL, delim);
         }
-        if(strlen(index0) != 0 && strlen(index1) != 0 && !model) {
+
+        // buffer size is large enough to mitigate any non-null termination issues
+        // -- no segfaults here :)
+        if(strlen(index0) != 0 && strlen(index1) != 0){
             if(strcmp(index0, MODEL_NAME) == 0){
-                result.model_name = index1;
-                model = TRUE;
-                printf("%s is equal to %s\n", index0, MODEL_NAME);
+                strncpy(model_name, index1, DATABUF);
+            } else if(strcmp(index0, CACHE_SIZE) == 0){
+                strncpy(cache_size, index1, DATABUF);
             }
         }
     }
-    free(line);
     fclose(proc_cpuinfo_p);
+    struct CPU_parsed result;
+    strncpy(result.model_name, model_name, DATABUF);
+    strncpy(result.cache_size, cache_size, DATABUF);
     return result;
 }

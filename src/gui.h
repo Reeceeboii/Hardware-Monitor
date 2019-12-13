@@ -10,7 +10,9 @@
 // window and grid layout
 struct window{
     GtkWidget* window;
-    GtkWidget* top_level_fixed;
+    GtkWidget* top_level_grid;
+    GtkWidget* menu_bar;
+    GtkWidget* top_level_box;
 };
 
 // program labels

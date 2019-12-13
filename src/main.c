@@ -1,17 +1,24 @@
 #include "procParser.h"
-#include "cpuinfo.h"
 #include "gui.h"
 #include <gtk/gtk.h>
 #include <string.h>
 #include <stdio.h>
 
+// construct all GUI objects from Glade XML
+void load_gui(struct window* win, struct labels* lab, GtkBuilder* builder, struct CPU_parsed* cpu){
+    win->top_level_box = GTK_WIDGET(gtk_builder_get_object(builder, "top_level_box"));
+    win->menu_bar = GTK_WIDGET(gtk_builder_get_object(builder, "menu_bar"));
+    win->top_level_grid = GTK_WIDGET(gtk_builder_get_object(builder, "top_level_grid"));
+    lab->cpu_model_label = GTK_WIDGET(gtk_builder_get_object(builder, "cpu_model_label"));
+    // populate with data
+    gtk_label_set_text(GTK_LABEL(lab->cpu_model_label), cpu->model_name);
+}
 
 int main(int argc, char* argv[]){
     GtkBuilder* builder;
     struct window win;
     struct labels lab;
-    struct cpu_details cpuDetails;
-    cpuDetails.name = get_cpu_model_name();
+    struct CPU_parsed cpuParsed = parse_cpu();
 
     // initialise GTK
     gtk_init(&argc, &argv);
@@ -22,14 +29,9 @@ int main(int argc, char* argv[]){
     // construct signal callback table
     gtk_builder_connect_signals(builder, NULL);
 
-    // construct GUI from Glade XML
-    win.top_level_fixed = GTK_WIDGET(gtk_builder_get_object(builder, "top_level_fixed"));
-    lab.cpu_model_label = GTK_WIDGET(gtk_builder_get_object(builder, "cpu_model_label"));
+    load_gui(&win, &lab, builder, &cpuParsed);
 
     //g_timeout_add_seconds(1, (GSourceFunc)callback, &val);
-
-    gtk_label_set_text(GTK_LABEL(lab.cpu_model_label), cpuDetails.name);
-
     gtk_widget_show(win.window);
     gtk_main();
 

@@ -7,12 +7,14 @@
 
 #include <gtk/gtk.h>
 #define MODEL_NAME "model name"
+#define CACHE_SIZE "cache size"
+#define DATABUF 80
 
 struct CPU_parsed {
-    char* model_name;
-    char* core_count;
-    char* thread_count;
-    char* cache_size;
+    char model_name[DATABUF];
+    char core_count[DATABUF];
+    char thread_count[DATABUF];
+    char cache_size[DATABUF];
 };
 
 //typedef struct thread_frequency{
