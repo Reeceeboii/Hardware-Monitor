@@ -5,6 +5,7 @@
 #ifndef LINUX_SYSTEM_MONITOR_PROCPARSER_H
 #define LINUX_SYSTEM_MONITOR_PROCPARSER_H
 
+#include "main.h"
 #include <gtk/gtk.h>
 
 // CPU
@@ -41,7 +42,9 @@ struct mem_parsed{
 struct CPU_parsed parse_cpu();
 struct mem_parsed parse_mem();
 char* trim_token(char* token);
-char* data_conv(char* s, int t);
+char* data_conv(char* s, struct callback_bundle* cbb);
+char* trim_memory_size(char* s);
+char* add_memory_size(char* s, struct callback_bundle* cbb);
 
 
 #endif //LINUX_SYSTEM_MONITOR_PROCPARSER_H

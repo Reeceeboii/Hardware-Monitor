@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.14)
 project(Linux_System_Monitor C)
 
 set(CMAKE_C_STANDARD 11)
@@ -12,6 +12,8 @@ add_definitions(${GTK3_CFLAGS_OTHER})
 add_executable(Linux_System_Monitor
         src/main.c
         src/procParser.c
-        src/procParser.h src/gui.h)
+        src/procParser.h
+        src/gui.h
+        src/main.h)
 
 target_link_libraries(Linux_System_Monitor ${GTK3_LIBRARIES})

@@ -4,20 +4,10 @@
 
 #include "procParser.h"
 #include "gui.h"
+#include "main.h"
 #include <gtk/gtk.h>
 #include <string.h>
 #include <stdio.h>
-
-/**
- * Callback struct used to pass supposedly global params around without them having global scope.
- * Callbacks can annoyingly only have one parameter so I have to bundle multiple up to use more than 1
- */
-struct callback_bundle{
-    struct window* win;
-    struct labels* lab;
-    struct CPU_parsed* cpuParsed;
-    struct mem_parsed* memParsed;
-};
 
 /**
  * Update GUI labels with up to date system information
@@ -81,7 +71,8 @@ int main(int argc, char* argv[]){
     struct CPU_parsed cpuParsed = parse_cpu();
     struct mem_parsed memParsed = parse_mem();
     struct callback_bundle callbackBundle = {
-            .win = &win, .lab = &lab, .cpuParsed = &cpuParsed, .memParsed = &memParsed };
+            .mem_data_type = KB, .win = &win, .lab = &lab,
+            .cpuParsed = &cpuParsed, .memParsed = &memParsed };
 
     // initialise GTK
     gtk_init(&argc, &argv);

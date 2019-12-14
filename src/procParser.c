@@ -3,6 +3,7 @@
 //
 
 #include "procParser.h"
+#include "main.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -21,19 +22,65 @@ char* trim_token(char* token) {
     return token;
 }
 
-char* data_conv(char* s, int t){
-    if(t == 0){
-        return s;
+/**
+ * A memory value read has 'kb' on the end, this function removes it so it can be changed if need be.
+ * @param s The string that contains 'kb'.
+ * @return The same string but without the 'kb' on the end.
+ */
+char* trim_memory_size(char* s){
+    char trimmed[strlen(s) - 2];
+    for(int unsigned long i = 0; i < strlen(s) - 3; ++i){
+        trimmed[i] = s[i];
     }
-    int val = atoi(s);
-    for(int i = 0; i < t; ++i){
-        val /= 1024;
-    }
-    char* s_val = NULL;
-    sprintf(s_val, "%d", val);
-    return s_val;
+    trimmed[strlen(s) - 3] = '\0';
+    char* ret = trimmed;
+    return ret;
 }
 
+/**
+ * Given the memory size flag in the callback bundle, add the correct data type on the end
+ * @param s The string being edited
+ * @param cbb A pointer to the program's callback bundle
+ * @return The string with the correct data type appended on the end
+ */
+char* add_memory_size(char* s, struct callback_bundle* cbb){
+    char* type;
+    char appended[strlen(s) + 3];
+    switch(cbb->mem_data_type){
+        case KB:
+            strcat(appended, " KB");
+            break;
+        case MB:
+            strcat(appended, " MB");
+            break;
+        case GB:
+            strcat(appended, " GB");
+            break;
+    }
+    char* ret = appended;
+    return ret;
+}
+
+char* data_conv(char* s, struct callback_bundle* cbb){
+    int size = cbb->mem_data_type;
+    char* trimmed = trim_memory_size(s);
+    if(size) {
+        int val = atoi(trimmed);
+        for (int i = 0; i < size; ++i) {
+            val /= 1024;
+        }
+        char converted[20];
+        sprintf(converted, "%d", val);
+        char* ret = converted;
+        return ret;
+    }
+    return s;
+}
+
+/**
+ * Read meminfo from proc and return a new mem_parsed struct representing that info
+ * @return A new mem_parsed struct
+ */
 struct mem_parsed parse_mem(){
     char total_mem[DATABUF];
     char total_swap[DATABUF];
@@ -64,6 +111,7 @@ struct mem_parsed parse_mem(){
         if(strlen(index0) != 0 && strlen(index1) != 0){
             if(strcmp(index0, TOTAL_MEMORY) == 0){
                 strncpy(total_mem, index1, DATABUF);
+                trim_memory_size(index1);
             } else if(strcmp(index0, TOTAL_SWAP) == 0){
                 strncpy(total_swap, index1, DATABUF);
             } else if(strcmp(index0, FREE_MEMORY) == 0){
@@ -74,13 +122,17 @@ struct mem_parsed parse_mem(){
         }
     }
     struct mem_parsed mem;
-    strncpy(mem.total_mem, data_conv(total_mem, GB), DATABUF);
+    strncpy(mem.total_mem, total_mem, DATABUF);
     strncpy(mem.total_swap, total_swap, DATABUF);
     strncpy(mem.mem_free, mem_free, DATABUF);
     strncpy(mem.swap_free, swap_free, DATABUF);
     return mem;
 }
 
+/**
+ * Read cpuinfo from proc and return a new CPU_parsed struct representing that info
+ * @return A new CPU_parsed struct
+ */
 struct CPU_parsed parse_cpu() {
     char model_name[DATABUF];
     char cache_size[DATABUF];
