@@ -13,15 +13,12 @@ struct window{
     GtkWidget* top_level_grid;
     GtkWidget* menu_bar;
     GtkWidget* top_level_box;
-    GtkWidget* thread_tree_view;
 };
 
 // program labels
 struct labels{
-    GtkWidget* cpu_model_label;
-    GtkWidget* core_count_label;
-    GtkWidget* thread_count_label;
-    GtkWidget* cache_size_label;
+    GtkWidget *cpu_model_label, *core_count_label, *thread_count_label, *cache_size_label;
+    GtkWidget *total_mem_label, *mem_free_label, *total_swap_label, *swap_free_label;
 };
 
 #endif //LINUX_SYSTEM_MONITOR_GUI_H

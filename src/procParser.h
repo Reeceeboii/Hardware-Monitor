@@ -17,10 +17,10 @@
 #define FREE_MEMORY "MemFree"
 #define FREE_SWAP "SwapFree"
 
-
-
 #define DATABUF 80
 #define FLAGBUF 1024 // accounting for possibly many CPU flags being encountered
+
+enum data_sizes { GB = 2, MB = 1, KB = 0 };
 
 struct CPU_parsed{
     char model_name[DATABUF];
@@ -41,6 +41,7 @@ struct mem_parsed{
 struct CPU_parsed parse_cpu();
 struct mem_parsed parse_mem();
 char* trim_token(char* token);
+char* data_conv(char* s, int t);
 
 
 #endif //LINUX_SYSTEM_MONITOR_PROCPARSER_H

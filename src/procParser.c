@@ -5,6 +5,7 @@
 #include "procParser.h"
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 // remove trailing whitespace from a string
 char* trim_token(char* token) {
@@ -18,6 +19,19 @@ char* trim_token(char* token) {
     }
     *(end+1) = '\0';
     return token;
+}
+
+char* data_conv(char* s, int t){
+    if(t == 0){
+        return s;
+    }
+    int val = atoi(s);
+    for(int i = 0; i < t; ++i){
+        val /= 1024;
+    }
+    char* s_val = NULL;
+    sprintf(s_val, "%d", val);
+    return s_val;
 }
 
 struct mem_parsed parse_mem(){
@@ -60,7 +74,7 @@ struct mem_parsed parse_mem(){
         }
     }
     struct mem_parsed mem;
-    strncpy(mem.total_mem, total_mem, DATABUF);
+    strncpy(mem.total_mem, data_conv(total_mem, GB), DATABUF);
     strncpy(mem.total_swap, total_swap, DATABUF);
     strncpy(mem.mem_free, mem_free, DATABUF);
     strncpy(mem.swap_free, swap_free, DATABUF);
