@@ -6,6 +6,7 @@
 #define LINUX_SYSTEM_MONITOR_MAIN_H
 
 #include "procParser.h"
+#include "gui.h"
 
 /**
  * Callback struct used to pass supposedly global params around without them having global scope.
@@ -13,8 +14,10 @@
  */
 struct callback_bundle{
     int mem_data_type;
+    int periodic_refresh_rate;
     struct window* win;
     struct labels* lab;
+    struct misc* misc;
     struct CPU_parsed* cpuParsed;
     struct mem_parsed* memParsed;
 };

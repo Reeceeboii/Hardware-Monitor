@@ -21,6 +21,7 @@
 #define DATABUF 80
 #define FLAGBUF 1024 // accounting for possibly many CPU flags being encountered
 
+// from kb, how many times you need to divide by 1024 to reach some other data units
 enum data_sizes { GB = 2, MB = 1, KB = 0 };
 
 struct CPU_parsed{
@@ -40,11 +41,11 @@ struct mem_parsed{
 };
 
 struct CPU_parsed parse_cpu();
-struct mem_parsed parse_mem();
+struct mem_parsed parse_mem(struct callback_bundle* cbb);
 char* trim_token(char* token);
 char* data_conv(char* s, struct callback_bundle* cbb);
-char* trim_memory_size(char* s);
+void trim_memory_size(char* s);
 char* add_memory_size(char* s, struct callback_bundle* cbb);
-
+gdouble calc_mem_used_percentage(struct callback_bundle* cbb);
 
 #endif //LINUX_SYSTEM_MONITOR_PROCPARSER_H

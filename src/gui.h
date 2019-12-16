@@ -21,4 +21,9 @@ struct labels{
     GtkWidget *total_mem_label, *mem_free_label, *total_swap_label, *swap_free_label;
 };
 
+// other GUI elements
+struct misc{
+    GtkWidget *mem_used_bar;
+};
+
 #endif //LINUX_SYSTEM_MONITOR_GUI_H
