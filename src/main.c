@@ -23,7 +23,7 @@ void set_labels(struct callback_bundle* cbb) {
     gtk_label_set_text(GTK_LABEL(lab->cache_size_label), cpuParsed->cache_size);
     // memory
     gtk_label_set_text(GTK_LABEL(lab->total_mem_label), memParsed->total_mem);
-    gtk_label_set_text(GTK_LABEL(lab->mem_free_label), memParsed->mem_free);
+    gtk_label_set_text(GTK_LABEL(lab->mem_available_label), memParsed->mem_available);
     gtk_label_set_text(GTK_LABEL(lab->total_swap_label), memParsed->total_swap);
     gtk_label_set_text(GTK_LABEL(lab->swap_free_label), memParsed->swap_free);
 }
@@ -46,7 +46,7 @@ void load_gui(struct callback_bundle* cbb, GtkBuilder* builder){
     lab->core_count_label = GTK_WIDGET(gtk_builder_get_object(builder, "core_count_label"));
     lab->cache_size_label = GTK_WIDGET(gtk_builder_get_object(builder, "cache_size_label"));
     lab->total_mem_label = GTK_WIDGET(gtk_builder_get_object(builder, "total_mem_label"));
-    lab->mem_free_label = GTK_WIDGET(gtk_builder_get_object(builder, "mem_free_label"));
+    lab->mem_available_label = GTK_WIDGET(gtk_builder_get_object(builder, "mem_available_label"));
     lab->total_swap_label = GTK_WIDGET(gtk_builder_get_object(builder, "total_swap_label"));
     lab->swap_free_label = GTK_WIDGET(gtk_builder_get_object(builder, "swap_free_label"));
     // load other GUI elements
@@ -64,7 +64,7 @@ void refresh_callback(GtkWidget* invoker, gpointer callback_bundle_ptr){
     struct callback_bundle* cbb = callback_bundle_ptr;
     *cbb->cpuParsed = parse_cpu();
     *cbb->memParsed = parse_mem(cbb);
-    printf("%f", calc_mem_used_percentage(cbb));
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), calc_mem_used_percentage(cbb));
     set_labels(cbb);
 }
 
@@ -76,8 +76,11 @@ void refresh_callback(GtkWidget* invoker, gpointer callback_bundle_ptr){
 gboolean timed_refresh(void* callback_bundle){
     struct callback_bundle* cbb = callback_bundle;
     *cbb->memParsed = parse_mem(cbb);
-    //printf("%f", calc_mem_used_percentage(cbb));
-    //gtk_progress_bar_set_fraction((GtkProgressBar *) cbb->misc->mem_used_bar, calc_mem_used_percentage(cbb));
+    gdouble mem_used_percentage = calc_mem_used_percentage(cbb);
+    char mem_used_str[20];
+    sprintf(mem_used_str, "%.1f%%", mem_used_percentage * 100);
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), mem_used_percentage);
+    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), mem_used_str);
     set_labels(cbb);
     return TRUE;
 }

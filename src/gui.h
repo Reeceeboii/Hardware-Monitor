@@ -18,7 +18,7 @@ struct window{
 // program labels
 struct labels{
     GtkWidget *cpu_model_label, *core_count_label, *thread_count_label, *cache_size_label;
-    GtkWidget *total_mem_label, *mem_free_label, *total_swap_label, *swap_free_label;
+    GtkWidget *total_mem_label, *mem_available_label, *total_swap_label, *swap_free_label;
 };
 
 // other GUI elements

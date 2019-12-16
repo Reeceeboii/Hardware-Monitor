@@ -38,7 +38,7 @@ void trim_memory_size(char* s){
  */
  /*
 char* add_memory_size(char* s, struct callback_bundle* cbb){
-    char* trimmed = trim_memory_size(s);
+    trim_memory_size(s);
     char* converted = data_conv(trimmed, cbb);
     char appended[strlen(converted) + 15];
     strcat(appended, converted);
@@ -58,15 +58,13 @@ char* add_memory_size(char* s, struct callback_bundle* cbb){
 }
 */
 
- // TODO memfree confused with memavailable from proc - change this and labels to get correct percentages
+ // TODO using the same pointers is causing the strings to mess up
 gdouble calc_mem_used_percentage(struct callback_bundle* cbb){
-    char* total = cbb->memParsed->total_mem;
-    char* free = cbb->memParsed->mem_free;
-    trim_memory_size(total);
-    trim_memory_size(free);
+    char* total = cbb->memParsed->total_mem_trimmed;
+    char* available = cbb->memParsed->mem_available_trimmed;
     gdouble total_gd = atoi(total);
-    gdouble free_gd = atoi(free);
-    gdouble used_gd = total_gd - free_gd;
+    gdouble available_gd = atoi(available);
+    gdouble used_gd = total_gd - available_gd;
     gdouble used_percentage = used_gd / total_gd;
     return used_percentage;
 }
@@ -92,7 +90,7 @@ char* data_conv(char* s, struct callback_bundle* cbb){
 struct mem_parsed parse_mem(struct callback_bundle* cbb){
     char total_mem[DATABUF];
     char total_swap[DATABUF];
-    char mem_free[DATABUF];
+    char mem_available[DATABUF];
     char swap_free[DATABUF];
     FILE* proc_meminfo_p;
     char* line = NULL;
@@ -122,8 +120,8 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
                 strncpy(total_mem, index1, DATABUF);
             } else if(strcmp(index0, TOTAL_SWAP) == 0){
                 strncpy(total_swap, index1, DATABUF);
-            } else if(strcmp(index0, FREE_MEMORY) == 0){
-                strncpy(mem_free, index1, DATABUF);
+            } else if(strcmp(index0, AVAILABLE_MEMORY) == 0){
+                strncpy(mem_available, index1, DATABUF);
             } else if(strcmp(index0, FREE_SWAP) == 0){
                 strncpy(swap_free, index1, DATABUF);
             }
@@ -131,9 +129,16 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
     }
     fclose(proc_meminfo_p);
     struct mem_parsed mem;
+
     strncpy(mem.total_mem, total_mem, DATABUF);
+    strncpy(mem.total_mem_trimmed, total_mem, DATABUF);
+    trim_memory_size(mem.total_mem_trimmed);
+
+    strncpy(mem.mem_available, mem_available, DATABUF);
+    strncpy(mem.mem_available_trimmed, mem_available, DATABUF);
+    trim_memory_size(mem.mem_available_trimmed);
+
     strncpy(mem.total_swap, total_swap, DATABUF);
-    strncpy(mem.mem_free, mem_free, DATABUF);
     strncpy(mem.swap_free, swap_free, DATABUF);
     return mem;
 }

@@ -15,7 +15,7 @@
 // MEM
 #define TOTAL_MEMORY "MemTotal"
 #define TOTAL_SWAP "SwapTotal"
-#define FREE_MEMORY "MemFree"
+#define AVAILABLE_MEMORY "MemAvailable"
 #define FREE_SWAP "SwapFree"
 
 #define DATABUF 80
@@ -32,12 +32,12 @@ struct CPU_parsed{
 };
 
 struct mem_parsed{
-    char total_mem[DATABUF]; // present
-    char total_swap[DATABUF]; // present
-    char mem_used[DATABUF]; // calc
-    char swap_used[DATABUF]; // calc
-    char mem_free[DATABUF]; // present
-    char swap_free[DATABUF]; // present
+    char total_mem[DATABUF];
+    char total_mem_trimmed[DATABUF];
+    char mem_available[DATABUF];
+    char mem_available_trimmed[DATABUF];
+    char total_swap[DATABUF];
+    char swap_free[DATABUF];
 };
 
 struct CPU_parsed parse_cpu();

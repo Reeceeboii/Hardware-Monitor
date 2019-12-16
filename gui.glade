@@ -170,10 +170,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="mem_free_label">
+              <object class="GtkLabel" id="mem_available_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="tooltip_text" translatable="yes">Total free memory</property>
+                <property name="tooltip_text" translatable="yes">Total available memory</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
