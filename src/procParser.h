@@ -5,7 +5,7 @@
 #ifndef LINUX_SYSTEM_MONITOR_PROCPARSER_H
 #define LINUX_SYSTEM_MONITOR_PROCPARSER_H
 
-#include "main.h"
+#include "utils.h"
 #include <gtk/gtk.h>
 
 // CPU
@@ -32,10 +32,17 @@ struct CPU_parsed{
 };
 
 struct mem_parsed{
+    // total memory in the system
     char total_mem[DATABUF];
     char total_mem_trimmed[DATABUF];
+    char total_mem_mib[DATABUF];
+    char total_mem_gib[DATABUF];
+    // the system's current free memory
     char mem_available[DATABUF];
     char mem_available_trimmed[DATABUF];
+    char mem_available_mib[DATABUF];
+    char mem_available_gib[DATABUF];
+
     char total_swap[DATABUF];
     char swap_free[DATABUF];
 };
@@ -43,9 +50,8 @@ struct mem_parsed{
 struct CPU_parsed parse_cpu();
 struct mem_parsed parse_mem(struct callback_bundle* cbb);
 char* trim_token(char* token);
-char* data_conv(char* s, struct callback_bundle* cbb);
+void data_conversion(char* mib_destination, char* gib_destination);
 void trim_memory_size(char* s);
-char* add_memory_size(char* s, struct callback_bundle* cbb);
 gdouble calc_mem_used_percentage(struct callback_bundle* cbb);
 
 #endif //LINUX_SYSTEM_MONITOR_PROCPARSER_H

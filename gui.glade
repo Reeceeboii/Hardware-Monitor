@@ -2,6 +2,13 @@
 <!-- Generated with glade 3.22.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkRadioMenuItem" id="unit_radios">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="active">True</property>
+    <property name="draw_as_radio">True</property>
+    <signal name="toggled" handler="data_unit_change_callback" swapped="no"/>
+  </object>
   <object class="GtkApplicationWindow" id="window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Linux System Monitor</property>
@@ -57,46 +64,44 @@
               <object class="GtkMenuItem">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">_Edit</property>
+                <property name="label" translatable="yes">Units</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-cut</property>
+                      <object class="GtkRadioMenuItem" id="mib_radio_button">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">MiB</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">unit_radios</property>
+                        <signal name="toggled" handler="data_unit_change_callback" swapped="no"/>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-copy</property>
+                      <object class="GtkRadioMenuItem" id="gib_radio_button">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">GiB</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">unit_radios</property>
+                        <signal name="toggled" handler="data_unit_change_callback" swapped="no"/>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-paste</property>
+                      <object class="GtkRadioMenuItem" id="kib_radio_button">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">KiB</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkImageMenuItem">
-                        <property name="label">gtk-delete</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="active">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">unit_radios</property>
+                        <signal name="toggled" handler="data_unit_change_callback" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -192,7 +197,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="swap_free_label">
+              <object class="GtkLabel" id="swap_available_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Total free swap memory</property>

@@ -14,6 +14,6 @@ add_executable(Linux_System_Monitor
         src/procParser.c
         src/procParser.h
         src/gui.h
-        src/main.h)
+        src/main.h src/gui.c src/utils.h)
 
 target_link_libraries(Linux_System_Monitor ${GTK3_LIBRARIES})

@@ -3,12 +3,16 @@
 //
 
 #include "procParser.h"
-#include "main.h"
+#include "utils.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 
-// remove trailing whitespace from a string
+/**
+ * Remove trailing whitespace from a string
+ * @param token Pointer to the string that needs to be stripped
+ * @return Pointer to stripped string
+ */
 char* trim_token(char* token) {
     char* end;
     while(isspace(*token)){
@@ -21,44 +25,14 @@ char* trim_token(char* token) {
     *(end+1) = '\0';
     return token;
 }
-
 /**
  * A memory value read has 'kb' on the end, this function removes it so it can be changed if need be.
- * @param s The string that contains 'kb'.
+ * @param s Pointer to the string that contains 'kb'.
 */
 void trim_memory_size(char* s){
     s[strlen(s) - 3] = '\0';
 }
 
-/**
- * Given the memory size flag in the callback bundle, add the correct data type on the end of a memory string
- * @param s The string being edited
- * @param cbb A pointer to the program's callback bundle
- * @return The string with the correct data type appended on the end
- */
- /*
-char* add_memory_size(char* s, struct callback_bundle* cbb){
-    trim_memory_size(s);
-    char* converted = data_conv(trimmed, cbb);
-    char appended[strlen(converted) + 15];
-    strcat(appended, converted);
-    switch(cbb->mem_data_type){
-        case KB:
-            strcat(appended, " KB");
-            break;
-        case MB:
-            strcat(appended, " MB");
-            break;
-        case GB:
-            strcat(appended, " GB");
-            break;
-    }
-    char* ret = appended;
-    return ret;
-}
-*/
-
- // TODO using the same pointers is causing the strings to mess up
 gdouble calc_mem_used_percentage(struct callback_bundle* cbb){
     char* total = cbb->memParsed->total_mem_trimmed;
     char* available = cbb->memParsed->mem_available_trimmed;
@@ -69,19 +43,30 @@ gdouble calc_mem_used_percentage(struct callback_bundle* cbb){
     return used_percentage;
 }
 
-char* data_conv(char* s, struct callback_bundle* cbb){
-    if(cbb->mem_data_type) {
-        int val = atoi(s);
-        for (int i = 0; i < cbb->mem_data_type; ++i) {
-            val /= 1024;
-        }
-        char converted[30];
-        sprintf(converted, "%f", val);
-        char* ret = converted;
-        return ret;
+/**
+ * Takes a kb string read from proc and converts it to Mib and Gib
+ * @param mib_destination Pointer to a char array to write the MiB conversion result to
+ * @param gib_destination Pointer to a char array to write the GiB conversion result to
+ */
+void data_conversion(char* mib_destination, char* gib_destination){
+    double mib = atof(mib_destination);
+    double gib = atof(gib_destination);
+
+    // carry out both Mib and Gib conversions
+    for(int i = 0; i < MB; ++i){
+        mib /= 1024;
     }
-    return s;
+    for(int i = 0; i < GB; ++i){
+        gib /= 1024;
+    }
+
+    // write calculations into the memParsed struct that owns that char pointers
+    sprintf(mib_destination, "%.1f", mib);
+    strncat(mib_destination, " MiB", DATABUF);
+    sprintf(gib_destination, "%.1f", gib);
+    strncat(gib_destination, " GiB", DATABUF);
 }
+
 
 /**
  * Read meminfo from proc and return a new mem_parsed struct representing that info
@@ -89,8 +74,8 @@ char* data_conv(char* s, struct callback_bundle* cbb){
  */
 struct mem_parsed parse_mem(struct callback_bundle* cbb){
     char total_mem[DATABUF];
-    char total_swap[DATABUF];
     char mem_available[DATABUF];
+    char total_swap[DATABUF];
     char swap_free[DATABUF];
     FILE* proc_meminfo_p;
     char* line = NULL;
@@ -103,9 +88,9 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
         exit(EXIT_FAILURE);
     }
     while((getline(&line, &len, proc_meminfo_p)) != -1) {
-        char *delim_ptr = strtok(line, delim); // split on ':' (/proc/cpuinfo's delimiter)
-        char *index0 = NULL;
-        char *index1 = NULL;
+        char* delim_ptr = strtok(line, delim); // split on ':' (/proc/cpuinfo's delimiter)
+        char* index0 = NULL;
+        char* index1 = NULL;
         int ind = 0;
         while (delim_ptr != NULL) {
             delim_ptr = trim_token(delim_ptr);
@@ -116,7 +101,6 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
         }
         if(strlen(index0) != 0 && strlen(index1) != 0){
             if(strcmp(index0, TOTAL_MEMORY) == 0){
-                //strncpy(total_mem, add_memory_size(index1, cbb), DATABUF);
                 strncpy(total_mem, index1, DATABUF);
             } else if(strcmp(index0, TOTAL_SWAP) == 0){
                 strncpy(total_swap, index1, DATABUF);
@@ -132,11 +116,17 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
 
     strncpy(mem.total_mem, total_mem, DATABUF);
     strncpy(mem.total_mem_trimmed, total_mem, DATABUF);
+    strncpy(mem.total_mem_mib, total_mem, DATABUF);
+    strncpy(mem.total_mem_gib, total_mem, DATABUF);
     trim_memory_size(mem.total_mem_trimmed);
+    data_conversion(mem.total_mem_mib, mem.total_mem_gib);
 
     strncpy(mem.mem_available, mem_available, DATABUF);
     strncpy(mem.mem_available_trimmed, mem_available, DATABUF);
+    strncpy(mem.mem_available_mib, mem_available, DATABUF);
+    strncpy(mem.mem_available_gib, mem_available, DATABUF);
     trim_memory_size(mem.mem_available_trimmed);
+    data_conversion(mem.mem_available_mib, mem.mem_available_gib);
 
     strncpy(mem.total_swap, total_swap, DATABUF);
     strncpy(mem.swap_free, swap_free, DATABUF);

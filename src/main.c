@@ -4,56 +4,11 @@
 
 #include "procParser.h"
 #include "gui.h"
-#include "main.h"
+#include "utils.h"
 #include <gtk/gtk.h>
 #include <string.h>
 #include <stdio.h>
 
-/**
- * Update GUI labels with up to date system information
- * @param cbb A pointer to the callback bundle
- */
-void set_labels(struct callback_bundle* cbb) {
-    struct labels* lab = cbb->lab;
-    struct CPU_parsed* cpuParsed = cbb->cpuParsed;
-    struct mem_parsed* memParsed = cbb->memParsed;
-    // cpu
-    gtk_label_set_text(GTK_LABEL(lab->cpu_model_label), cpuParsed->model_name);
-    gtk_label_set_text(GTK_LABEL(lab->core_count_label), cpuParsed->core_count);
-    gtk_label_set_text(GTK_LABEL(lab->cache_size_label), cpuParsed->cache_size);
-    // memory
-    gtk_label_set_text(GTK_LABEL(lab->total_mem_label), memParsed->total_mem);
-    gtk_label_set_text(GTK_LABEL(lab->mem_available_label), memParsed->mem_available);
-    gtk_label_set_text(GTK_LABEL(lab->total_swap_label), memParsed->total_swap);
-    gtk_label_set_text(GTK_LABEL(lab->swap_free_label), memParsed->swap_free);
-}
-
-/**
- * Construct GTK GUI from Glade XML
- * @param cbb A pointer to the callback bundle
- * @param builder A pointer to a GtkBuilder
- */
-void load_gui(struct callback_bundle* cbb, GtkBuilder* builder){
-    struct window* win = cbb->win;
-    struct labels* lab = cbb->lab;
-    struct misc* misc = cbb->misc;
-    // load window
-    win->top_level_box = GTK_WIDGET(gtk_builder_get_object(builder, "top_level_box"));
-    win->menu_bar = GTK_WIDGET(gtk_builder_get_object(builder, "menu_bar"));
-    win->top_level_grid = GTK_WIDGET(gtk_builder_get_object(builder, "top_level_grid"));
-    // load labels
-    lab->cpu_model_label = GTK_WIDGET(gtk_builder_get_object(builder, "cpu_model_label"));
-    lab->core_count_label = GTK_WIDGET(gtk_builder_get_object(builder, "core_count_label"));
-    lab->cache_size_label = GTK_WIDGET(gtk_builder_get_object(builder, "cache_size_label"));
-    lab->total_mem_label = GTK_WIDGET(gtk_builder_get_object(builder, "total_mem_label"));
-    lab->mem_available_label = GTK_WIDGET(gtk_builder_get_object(builder, "mem_available_label"));
-    lab->total_swap_label = GTK_WIDGET(gtk_builder_get_object(builder, "total_swap_label"));
-    lab->swap_free_label = GTK_WIDGET(gtk_builder_get_object(builder, "swap_free_label"));
-    // load other GUI elements
-    misc->mem_used_bar = GTK_WIDGET(gtk_builder_get_object(builder, "mem_used_bar"));
-    // populate with data
-    set_labels(cbb);
-}
 
 /**
  * Callback used by the refresh button in the 'file' menu bar option
@@ -69,16 +24,32 @@ void refresh_callback(GtkWidget* invoker, gpointer callback_bundle_ptr){
 }
 
 /**
+ * Callback function that is fired when one of the data unit radio buttons is changed
+ * @param invoker Pointer to the radio button widget that invoked this callback
+ * @param callback_bundle_ptr A pointer to the program's callback bundle
+ */
+void data_unit_change_callback(GtkWidget* invoker, gpointer callback_bundle_ptr){
+   struct callback_bundle* cbb = callback_bundle_ptr;
+   struct data_unit_radios* radios = cbb->radios;
+   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radios->kib_but))){
+
+   }
+   printf("%s\n", "Hello this callback works");
+
+}
+/**
  * Periodically update the program's data using fresh calls to proc
  * @param callback_bundle A pointer to the program's callback bundle
- * @return
+ * @return gboolean TRUE to stop this callback being unregistered
  */
 gboolean timed_refresh(void* callback_bundle){
     struct callback_bundle* cbb = callback_bundle;
-    *cbb->memParsed = parse_mem(cbb);
+    *cbb->memParsed = parse_mem(cbb); // recalculate memory data
+    struct mem_parsed* mem = cbb->memParsed;
     gdouble mem_used_percentage = calc_mem_used_percentage(cbb);
-    char mem_used_str[20];
-    sprintf(mem_used_str, "%.1f%%", mem_used_percentage * 100);
+    char mem_used_str[100];
+    sprintf(mem_used_str, "%s remaining of %s (%.1f%%) used",
+            mem->mem_available_gib, mem->total_mem_gib, mem_used_percentage * 100);
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), mem_used_percentage);
     gtk_progress_bar_set_text(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), mem_used_str);
     set_labels(cbb);
@@ -89,9 +60,11 @@ int main(int argc, char* argv[]){
     GtkBuilder* builder;
     struct window win;
     struct labels lab;
+    struct data_unit_radios radios;
     struct misc misc;
     struct callback_bundle callbackBundle = {
-            .periodic_refresh_rate = 100, .mem_data_type = KB, .win = &win, .lab = &lab, .misc = &misc };
+            .periodic_refresh_rate = 250, .mem_data_type = KB, .win = &win, .lab = &lab,
+            .radios = &radios, .misc = &misc };
     struct CPU_parsed cpuParsed = parse_cpu();
     struct mem_parsed memParsed = parse_mem(&callbackBundle);
     callbackBundle.cpuParsed = &cpuParsed;
@@ -107,10 +80,10 @@ int main(int argc, char* argv[]){
     gtk_builder_connect_signals(builder, &callbackBundle);
 
     load_gui(&callbackBundle, builder);
-
-    g_timeout_add((guint) callbackBundle.periodic_refresh_rate, (GSourceFunc)timed_refresh, &callbackBundle);
+    // set up a periodic refresh of the data retrieved from proc
+    g_timeout_add(callbackBundle.periodic_refresh_rate, (GSourceFunc)timed_refresh, &callbackBundle);
     gtk_widget_show(win.window);
+    // kick off the GTK main loop
     gtk_main();
-
     return EXIT_SUCCESS;
 }

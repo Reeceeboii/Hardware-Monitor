@@ -1,12 +1,11 @@
 //
-// Created by reece on 14/12/2019.
+// Created by reece on 16/12/2019.
 //
 
-#ifndef LINUX_SYSTEM_MONITOR_MAIN_H
-#define LINUX_SYSTEM_MONITOR_MAIN_H
+#ifndef LINUX_SYSTEM_MONITOR_UTILS_H
+#define LINUX_SYSTEM_MONITOR_UTILS_H
 
-#include "procParser.h"
-#include "gui.h"
+#include <gtk/gtk.h>
 
 /**
  * Callback struct used to pass supposedly global params around without them having global scope.
@@ -14,13 +13,13 @@
  */
 struct callback_bundle{
     int mem_data_type;
-    int periodic_refresh_rate;
+    guint periodic_refresh_rate;
     struct window* win;
     struct labels* lab;
+    struct data_unit_radios* radios;
     struct misc* misc;
     struct CPU_parsed* cpuParsed;
     struct mem_parsed* memParsed;
 };
 
-
-#endif //LINUX_SYSTEM_MONITOR_MAIN_H
+#endif //LINUX_SYSTEM_MONITOR_UTILS_H
