@@ -20,23 +20,10 @@ void refresh_callback(GtkWidget* invoker, gpointer callback_bundle_ptr){
     *cbb->cpuParsed = parse_cpu();
     *cbb->memParsed = parse_mem(cbb);
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), calc_mem_used_percentage(cbb));
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->swap_used_bar), calc_swap_used_percentage(cbb));
     set_labels(cbb);
 }
 
-/**
- * Callback function that is fired when one of the data unit radio buttons is changed
- * @param invoker Pointer to the radio button widget that invoked this callback
- * @param callback_bundle_ptr A pointer to the program's callback bundle
- */
-void data_unit_change_callback(GtkWidget* invoker, gpointer callback_bundle_ptr){
-   struct callback_bundle* cbb = callback_bundle_ptr;
-   struct data_unit_radios* radios = cbb->radios;
-   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(radios->kib_but))){
-
-   }
-   printf("%s\n", "Hello this callback works");
-
-}
 /**
  * Periodically update the program's data using fresh calls to proc
  * @param callback_bundle A pointer to the program's callback bundle
@@ -47,11 +34,18 @@ gboolean timed_refresh(void* callback_bundle){
     *cbb->memParsed = parse_mem(cbb); // recalculate memory data
     struct mem_parsed* mem = cbb->memParsed;
     gdouble mem_used_percentage = calc_mem_used_percentage(cbb);
+    gdouble swap_used_percentage = calc_swap_used_percentage(cbb);
     char mem_used_str[100];
+    char swap_used_str[100];
     sprintf(mem_used_str, "%s remaining of %s (%.1f%%) used",
             mem->mem_available_gib, mem->total_mem_gib, mem_used_percentage * 100);
+    sprintf(swap_used_str, "%s remaining of %s (%.1f%%) used",
+            mem->swap_available_gib, mem->total_swap_gib, swap_used_percentage * 100);
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), mem_used_percentage);
     gtk_progress_bar_set_text(GTK_PROGRESS_BAR(cbb->misc->mem_used_bar), mem_used_str);
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->swap_used_bar), swap_used_percentage);
+    gtk_progress_bar_set_text(GTK_PROGRESS_BAR(cbb->misc->swap_used_bar), swap_used_str);
+
     set_labels(cbb);
     return TRUE;
 }
@@ -60,11 +54,10 @@ int main(int argc, char* argv[]){
     GtkBuilder* builder;
     struct window win;
     struct labels lab;
-    struct data_unit_radios radios;
     struct misc misc;
     struct callback_bundle callbackBundle = {
             .periodic_refresh_rate = 250, .mem_data_type = KB, .win = &win, .lab = &lab,
-            .radios = &radios, .misc = &misc };
+            .misc = &misc };
     struct CPU_parsed cpuParsed = parse_cpu();
     struct mem_parsed memParsed = parse_mem(&callbackBundle);
     callbackBundle.cpuParsed = &cpuParsed;

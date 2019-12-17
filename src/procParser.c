@@ -33,6 +33,11 @@ void trim_memory_size(char* s){
     s[strlen(s) - 3] = '\0';
 }
 
+/**
+ * Calculate the percentage of system memory being used
+ * @param cbb A pointer to the program's callback bundle
+ * @return The percentage of memory being used
+ */
 gdouble calc_mem_used_percentage(struct callback_bundle* cbb){
     char* total = cbb->memParsed->total_mem_trimmed;
     char* available = cbb->memParsed->mem_available_trimmed;
@@ -42,6 +47,22 @@ gdouble calc_mem_used_percentage(struct callback_bundle* cbb){
     gdouble used_percentage = used_gd / total_gd;
     return used_percentage;
 }
+
+/**
+ * Calculate the percentage of system swap memory being used
+ * @param cbb A pointer to the program's callback bundle
+ * @return The percentage of memory being used
+ */
+gdouble calc_swap_used_percentage(struct callback_bundle* cbb){
+    char* total = cbb->memParsed->total_swap_trimmed;
+    char* available = cbb->memParsed->swap_available_trimmed;
+    gdouble total_gd = atoi(total);
+    gdouble available_gd = atoi(available);
+    gdouble used_gd = total_gd - available_gd;
+    gdouble used_percentage = used_gd / total_gd;
+    return used_percentage;
+}
+
 
 /**
  * Takes a kb string read from proc and converts it to Mib and Gib
@@ -76,7 +97,7 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
     char total_mem[DATABUF];
     char mem_available[DATABUF];
     char total_swap[DATABUF];
-    char swap_free[DATABUF];
+    char swap_available[DATABUF];
     FILE* proc_meminfo_p;
     char* line = NULL;
     char delim[] = ":";
@@ -106,8 +127,8 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
                 strncpy(total_swap, index1, DATABUF);
             } else if(strcmp(index0, AVAILABLE_MEMORY) == 0){
                 strncpy(mem_available, index1, DATABUF);
-            } else if(strcmp(index0, FREE_SWAP) == 0){
-                strncpy(swap_free, index1, DATABUF);
+            } else if(strcmp(index0, AVAILABLE_SWAP) == 0){
+                strncpy(swap_available, index1, DATABUF);
             }
         }
     }
@@ -120,7 +141,6 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
     strncpy(mem.total_mem_gib, total_mem, DATABUF);
     trim_memory_size(mem.total_mem_trimmed);
     data_conversion(mem.total_mem_mib, mem.total_mem_gib);
-
     strncpy(mem.mem_available, mem_available, DATABUF);
     strncpy(mem.mem_available_trimmed, mem_available, DATABUF);
     strncpy(mem.mem_available_mib, mem_available, DATABUF);
@@ -129,7 +149,17 @@ struct mem_parsed parse_mem(struct callback_bundle* cbb){
     data_conversion(mem.mem_available_mib, mem.mem_available_gib);
 
     strncpy(mem.total_swap, total_swap, DATABUF);
-    strncpy(mem.swap_free, swap_free, DATABUF);
+    strncpy(mem.total_swap_trimmed, total_swap, DATABUF);
+    strncpy(mem.total_swap_mib, total_swap, DATABUF);
+    strncpy(mem.total_swap_gib, total_swap, DATABUF);
+    trim_memory_size(mem.total_swap_trimmed);
+    data_conversion(mem.total_swap_mib, mem.total_swap_gib);
+    strncpy(mem.swap_available, swap_available, DATABUF);
+    strncpy(mem.swap_available_trimmed, swap_available, DATABUF);
+    strncpy(mem.swap_available_mib, swap_available, DATABUF);
+    strncpy(mem.swap_available_gib, swap_available, DATABUF);
+    trim_memory_size(mem.swap_available_trimmed);
+    data_conversion(mem.swap_available_mib, mem.swap_available_gib);
     return mem;
 }
 

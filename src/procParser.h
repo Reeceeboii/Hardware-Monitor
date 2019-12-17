@@ -14,9 +14,9 @@
 #define CORE_COUNT "cpu cores"
 // MEM
 #define TOTAL_MEMORY "MemTotal"
-#define TOTAL_SWAP "SwapTotal"
 #define AVAILABLE_MEMORY "MemAvailable"
-#define FREE_SWAP "SwapFree"
+#define TOTAL_SWAP "SwapTotal"
+#define AVAILABLE_SWAP "SwapFree"
 
 #define DATABUF 80
 #define FLAGBUF 1024 // accounting for possibly many CPU flags being encountered
@@ -42,9 +42,16 @@ struct mem_parsed{
     char mem_available_trimmed[DATABUF];
     char mem_available_mib[DATABUF];
     char mem_available_gib[DATABUF];
-
+    // total swap memory in the system
     char total_swap[DATABUF];
-    char swap_free[DATABUF];
+    char total_swap_trimmed[DATABUF];
+    char total_swap_mib[DATABUF];
+    char total_swap_gib[DATABUF];
+    // the system's current free swap memory
+    char swap_available[DATABUF];
+    char swap_available_trimmed[DATABUF];
+    char swap_available_mib[DATABUF];
+    char swap_available_gib[DATABUF];
 };
 
 struct CPU_parsed parse_cpu();
@@ -53,5 +60,6 @@ char* trim_token(char* token);
 void data_conversion(char* mib_destination, char* gib_destination);
 void trim_memory_size(char* s);
 gdouble calc_mem_used_percentage(struct callback_bundle* cbb);
+gdouble calc_swap_used_percentage(struct callback_bundle* cbb);
 
 #endif //LINUX_SYSTEM_MONITOR_PROCPARSER_H

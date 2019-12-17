@@ -16,7 +16,6 @@ struct callback_bundle{
     guint periodic_refresh_rate;
     struct window* win;
     struct labels* lab;
-    struct data_unit_radios* radios;
     struct misc* misc;
     struct CPU_parsed* cpuParsed;
     struct mem_parsed* memParsed;

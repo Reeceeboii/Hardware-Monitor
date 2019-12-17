@@ -22,13 +22,9 @@ struct labels{
     GtkWidget *total_mem_label, *mem_available_label, *total_swap_label, *swap_available_label;
 };
 
-struct data_unit_radios{
-    GtkWidget *kib_but, *mib_but, *gib_but;
-};
-
 // other GUI elements
 struct misc{
-    GtkWidget *mem_used_bar;
+    GtkWidget *mem_used_bar, *swap_used_bar;
 };
 
 void load_gui(struct callback_bundle* cbb, GtkBuilder* builder);

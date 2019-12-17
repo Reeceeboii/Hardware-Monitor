@@ -21,7 +21,7 @@ void set_labels(struct callback_bundle* cbb){
     gtk_label_set_text(GTK_LABEL(lab->total_mem_label), memParsed->total_mem);
     gtk_label_set_text(GTK_LABEL(lab->mem_available_label), memParsed->mem_available);
     gtk_label_set_text(GTK_LABEL(lab->total_swap_label), memParsed->total_swap);
-    gtk_label_set_text(GTK_LABEL(lab->swap_available_label), memParsed->swap_free);
+    gtk_label_set_text(GTK_LABEL(lab->swap_available_label), memParsed->swap_available);
 }
 
 /**
@@ -33,7 +33,6 @@ void load_gui(struct callback_bundle* cbb, GtkBuilder* builder){
     struct window* win = cbb->win;
     struct labels* lab = cbb->lab;
     struct misc* misc = cbb->misc;
-    struct data_unit_radios* radios = cbb->radios;
     // load window
     win->top_level_box = GTK_WIDGET(gtk_builder_get_object(builder, "top_level_box"));
     win->menu_bar = GTK_WIDGET(gtk_builder_get_object(builder, "menu_bar"));
@@ -48,10 +47,7 @@ void load_gui(struct callback_bundle* cbb, GtkBuilder* builder){
     lab->swap_available_label = GTK_WIDGET(gtk_builder_get_object(builder, "swap_available_label"));
     // load other GUI elements
     misc->mem_used_bar = GTK_WIDGET(gtk_builder_get_object(builder, "mem_used_bar"));
-    // load radio buttons
-    radios->kib_but = GTK_WIDGET(gtk_builder_get_object(builder, "kib_radio_button"));
-    radios->mib_but = GTK_WIDGET(gtk_builder_get_object(builder, "mib_radio_button"));
-    radios->gib_but = GTK_WIDGET(gtk_builder_get_object(builder, "gib_radio_button"));
+    misc->swap_used_bar = GTK_WIDGET(gtk_builder_get_object(builder, "swap_used_bar"));
 
     // populate labels with data
     set_labels(cbb);
