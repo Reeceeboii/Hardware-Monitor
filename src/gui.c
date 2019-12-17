@@ -18,10 +18,9 @@ void set_labels(struct callback_bundle* cbb){
     gtk_label_set_text(GTK_LABEL(lab->core_count_label), cpuParsed->core_count);
     gtk_label_set_text(GTK_LABEL(lab->cache_size_label), cpuParsed->cache_size);
     // memory
-    gtk_label_set_text(GTK_LABEL(lab->total_mem_label), memParsed->total_mem);
-    gtk_label_set_text(GTK_LABEL(lab->mem_available_label), memParsed->mem_available);
-    gtk_label_set_text(GTK_LABEL(lab->total_swap_label), memParsed->total_swap);
-    gtk_label_set_text(GTK_LABEL(lab->swap_available_label), memParsed->swap_available);
+
+    gtk_label_set_text(GTK_LABEL(lab->mem_available_label), memParsed->mem_available_mib);
+    gtk_label_set_text(GTK_LABEL(lab->swap_available_label), memParsed->swap_available_mib);
 }
 
 /**
@@ -41,9 +40,7 @@ void load_gui(struct callback_bundle* cbb, GtkBuilder* builder){
     lab->cpu_model_label = GTK_WIDGET(gtk_builder_get_object(builder, "cpu_model_label"));
     lab->core_count_label = GTK_WIDGET(gtk_builder_get_object(builder, "core_count_label"));
     lab->cache_size_label = GTK_WIDGET(gtk_builder_get_object(builder, "cache_size_label"));
-    lab->total_mem_label = GTK_WIDGET(gtk_builder_get_object(builder, "total_mem_label"));
     lab->mem_available_label = GTK_WIDGET(gtk_builder_get_object(builder, "mem_available_label"));
-    lab->total_swap_label = GTK_WIDGET(gtk_builder_get_object(builder, "total_swap_label"));
     lab->swap_available_label = GTK_WIDGET(gtk_builder_get_object(builder, "swap_available_label"));
     // load other GUI elements
     misc->mem_used_bar = GTK_WIDGET(gtk_builder_get_object(builder, "mem_used_bar"));

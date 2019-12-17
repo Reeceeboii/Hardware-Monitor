@@ -171,7 +171,8 @@ struct CPU_parsed parse_cpu() {
     char model_name[DATABUF];
     char cache_size[DATABUF];
     char core_count[DATABUF];
-    char thread_count[DATABUF];
+    gdouble thread_freq[THREADBUF];
+    int thread_count = 0;
     FILE* proc_cpuinfo_p;
     char* line = NULL;
     char delim[] = ":";
@@ -207,6 +208,9 @@ struct CPU_parsed parse_cpu() {
             } else if(strcmp(index0, CORE_COUNT) == 0){
                 strcat(index1, " cores");
                 strncpy(core_count, index1, DATABUF);
+            } else if(strcmp(index0, THREAD_FREQ) == 0){
+                thread_freq[thread_count] = atof(index1);
+                ++thread_count;
             }
         }
     }
@@ -215,5 +219,9 @@ struct CPU_parsed parse_cpu() {
     strncpy(result.model_name, model_name, DATABUF);
     strncpy(result.cache_size, cache_size, DATABUF);
     strncpy(result.core_count, core_count, DATABUF);
+    for(int i = 0; i < thread_count; ++i){
+        result.thread_freq[i] = thread_freq[i];
+    }
+    result.thread_count = thread_count;
     return result;
 }

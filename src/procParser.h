@@ -12,23 +12,28 @@
 #define MODEL_NAME "model name"
 #define CACHE_SIZE "cache size"
 #define CORE_COUNT "cpu cores"
+#define THREAD_FREQ "cpu MHz"
 // MEM
 #define TOTAL_MEMORY "MemTotal"
 #define AVAILABLE_MEMORY "MemAvailable"
 #define TOTAL_SWAP "SwapTotal"
 #define AVAILABLE_SWAP "SwapFree"
 
+// some misc constants
 #define DATABUF 80
+#define THREADBUF 32
+#define END_OF_THREADS
 #define FLAGBUF 1024 // accounting for possibly many CPU flags being encountered
 
 // from kb, how many times you need to divide by 1024 to reach some other data units
 enum data_sizes { GB = 2, MB = 1, KB = 0 };
 
 struct CPU_parsed{
+    int thread_count;
     char model_name[DATABUF];
     char core_count[DATABUF];
-    char thread_count[DATABUF];
     char cache_size[FLAGBUF];
+    gdouble thread_freq[THREADBUF];
 };
 
 struct mem_parsed{
