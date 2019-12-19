@@ -32,6 +32,7 @@ void refresh_callback(GtkWidget* invoker, gpointer callback_bundle_ptr){
 gboolean timed_refresh(void* callback_bundle){
     struct callback_bundle* cbb = callback_bundle;
     *cbb->memParsed = parse_mem(cbb); // recalculate memory data
+    *cbb->cpuParsed = parse_cpu(cbb);
     struct mem_parsed* mem = cbb->memParsed;
     gdouble mem_used_percentage = calc_mem_used_percentage(cbb);
     gdouble swap_used_percentage = calc_swap_used_percentage(cbb);
@@ -46,35 +47,59 @@ gboolean timed_refresh(void* callback_bundle){
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->swap_used_bar), swap_used_percentage);
     gtk_progress_bar_set_text(GTK_PROGRESS_BAR(cbb->misc->swap_used_bar), swap_used_str);
 
+    for(int i = 0; i < cbb->cpuParsed->thread_count; ++i){
+        char thread_speed[25];
+        sprintf(thread_speed, "%.4f", cbb->cpuParsed->thread_freq[i]);
+        gtk_label_set_text(GTK_LABEL(cbb->misc->thread_labels[i]), thread_speed);
+    }
+
     set_labels(cbb);
     return TRUE;
 }
 
 int main(int argc, char* argv[]){
+    // initialise GTK
+    gtk_init(&argc, &argv);
     GtkBuilder* builder;
     struct window win;
+    builder = gtk_builder_new_from_file("gui.glade");
+    win.window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
+    g_signal_connect(win.window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
     struct labels lab;
     struct misc misc;
     struct callback_bundle callbackBundle = {
             .periodic_refresh_rate = 250, .mem_data_type = KB, .win = &win, .lab = &lab,
             .misc = &misc };
     struct CPU_parsed cpuParsed = parse_cpu();
+    // make sure use has < MAX_SUPPORTED_THREADS (procparse.h)
+    if(cpuParsed.thread_count > MAX_SUPPORTED_THREADS){
+        printf("No more than %d threads are supported, you have %d",
+                MAX_SUPPORTED_THREADS, cpuParsed.thread_count);
+        exit(EXIT_SUCCESS);
+    }
+
     struct mem_parsed memParsed = parse_mem(&callbackBundle);
     callbackBundle.cpuParsed = &cpuParsed;
     callbackBundle.memParsed = &memParsed;
 
-    // initialise GTK
-    gtk_init(&argc, &argv);
-
-    builder = gtk_builder_new_from_file("gui.glade");
-    win.window = GTK_WIDGET(gtk_builder_get_object(builder, "window"));
-    g_signal_connect(win.window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     // construct signal callback table
     gtk_builder_connect_signals(builder, &callbackBundle);
 
     load_gui(&callbackBundle, builder);
+
+    for(int i = 0; i < callbackBundle.cpuParsed->thread_count; ++i){
+        char label[25];
+        sprintf(label, "%.4f", callbackBundle.cpuParsed->thread_freq[i]);
+        GtkWidget* thread_label = gtk_label_new(label);
+        misc.thread_labels[i] = thread_label;
+        gtk_grid_attach(GTK_GRID(win.top_level_grid), misc.thread_labels[i], 2, i, 1, 1);
+    }
+
     // set up a periodic refresh of the data retrieved from proc
     g_timeout_add(callbackBundle.periodic_refresh_rate, (GSourceFunc)timed_refresh, &callbackBundle);
+
+    gtk_widget_show_all(win.window);
     gtk_widget_show(win.window);
     // kick off the GTK main loop
     gtk_main();

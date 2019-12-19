@@ -22,10 +22,10 @@
 // some misc constants
 #define DATABUF 80
 #define THREADBUF 32
-#define END_OF_THREADS
+#define MAX_SUPPORTED_THREADS 32 // this is reasonable for now
 #define FLAGBUF 1024 // accounting for possibly many CPU flags being encountered
 
-// from kb, how many times you need to divide by 1024 to reach some other data units
+// from kib, how many times you need to divide by 1024 to reach some other data units
 enum data_sizes { GB = 2, MB = 1, KB = 0 };
 
 struct CPU_parsed{

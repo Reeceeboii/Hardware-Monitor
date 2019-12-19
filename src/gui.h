@@ -6,6 +6,7 @@
 #define LINUX_SYSTEM_MONITOR_GUI_H
 
 #include "utils.h"
+#include "procParser.h"
 #include <gtk/gtk.h>
 
 // window and grid layout
@@ -25,6 +26,7 @@ struct labels{
 // other GUI elements
 struct misc{
     GtkWidget *mem_used_bar, *swap_used_bar;
+    GtkWidget * thread_labels[MAX_SUPPORTED_THREADS];
 };
 
 void load_gui(struct callback_bundle* cbb, GtkBuilder* builder);
