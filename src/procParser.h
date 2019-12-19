@@ -25,8 +25,10 @@
 #define MAX_SUPPORTED_THREADS 32 // this is reasonable for now
 #define FLAGBUF 1024 // accounting for possibly many CPU flags being encountered
 
-// from kib, how many times you need to divide by 1024 to reach some other data units
+// from KiB, how many times you need to divide by 1024 to reach some other data units
 enum data_sizes { GB = 2, MB = 1, KB = 0 };
+// from MHz, how many times you need to divide by 1000 to reach other units
+enum freq_types { MHz = 0, GHz = 1 };
 
 struct CPU_parsed{
     int thread_count;

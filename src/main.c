@@ -47,12 +47,6 @@ gboolean timed_refresh(void* callback_bundle){
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(cbb->misc->swap_used_bar), swap_used_percentage);
     gtk_progress_bar_set_text(GTK_PROGRESS_BAR(cbb->misc->swap_used_bar), swap_used_str);
 
-    for(int i = 0; i < cbb->cpuParsed->thread_count; ++i){
-        char thread_speed[25];
-        sprintf(thread_speed, "%.4f", cbb->cpuParsed->thread_freq[i]);
-        gtk_label_set_text(GTK_LABEL(cbb->misc->thread_labels[i]), thread_speed);
-    }
-
     set_labels(cbb);
     return TRUE;
 }
@@ -69,7 +63,7 @@ int main(int argc, char* argv[]){
     struct labels lab;
     struct misc misc;
     struct callback_bundle callbackBundle = {
-            .periodic_refresh_rate = 250, .mem_data_type = KB, .win = &win, .lab = &lab,
+            .periodic_refresh_rate = 150, .mem_data_type = KB, .freq_unit = GHz, .win = &win, .lab = &lab,
             .misc = &misc };
     struct CPU_parsed cpuParsed = parse_cpu();
     // make sure use has < MAX_SUPPORTED_THREADS (procparse.h)

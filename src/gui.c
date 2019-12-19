@@ -21,6 +21,18 @@ void set_labels(struct callback_bundle* cbb){
 
     gtk_label_set_text(GTK_LABEL(lab->mem_available_label), memParsed->mem_available_mib);
     gtk_label_set_text(GTK_LABEL(lab->swap_available_label), memParsed->swap_available_mib);
+
+    // thread labels
+    for(int i = 0; i < cbb->cpuParsed->thread_count; ++i){
+        char thread_speed[30];
+        if(cbb->freq_unit == GHz){
+            sprintf(thread_speed, "Thread %d - %.2f GHz", i + 1, cpuParsed->thread_freq[i] / 1000);
+            gtk_label_set_text(GTK_LABEL(cbb->misc->thread_labels[i]), thread_speed);
+        }else {
+            sprintf(thread_speed, "Thread %d - %.2f MHz", i + 1, cpuParsed->thread_freq[i]);
+            gtk_label_set_text(GTK_LABEL(cbb->misc->thread_labels[i]), thread_speed);
+        }
+    }
 }
 
 /**
@@ -45,7 +57,4 @@ void load_gui(struct callback_bundle* cbb, GtkBuilder* builder){
     // load other GUI elements
     misc->mem_used_bar = GTK_WIDGET(gtk_builder_get_object(builder, "mem_used_bar"));
     misc->swap_used_bar = GTK_WIDGET(gtk_builder_get_object(builder, "swap_used_bar"));
-
-    // populate labels with data
-    set_labels(cbb);
 }
